@@ -1,28 +1,14 @@
-name: Build & Upload iOS (Unity Personal)
+name: Build iOS Unity (Manual Activation)
 
 on:
   workflow_dispatch:
 
 jobs:
-  # 🧩 Step 1: 在 Ubuntu 啟用 License
-  activate-license:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Activate Unity Personal License
-        uses: webbertakken/unity-activate@v1
-        with:
-          unityVersion: 2022.3.62f2
-          personalLicense: ${{ secrets.UNITY_LICENSE }}
-    outputs:
-      UNITY_LICENSE: ${{ steps.activate.outputs.unityLicense }}
-
-  # 🧩 Step 2: macOS 建構 iOS 專案
   build-ios:
     runs-on: macos-latest
-    needs: activate-license
     env:
       UNITY_VERSION: 2022.3.62f2
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
       PROJECT_PATH: .
       BUILD_PATH: build/iOS
       APP_NAME: "V's 接龍"
@@ -30,20 +16,37 @@ jobs:
       APP_VERSION: 20251107
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
+      # 🧩 安裝 Unity Hub CLI + 指定版本
+      - name: Install Unity Editor
+        run: |
+          brew install --cask unity-hub
+          mkdir -p ~/Unity
+          unity-hub install --version $UNITY_VERSION --modules ios
+
+      # 🧩 匯出 License（啟用 Personal License）
+      - name: Activate Unity License
+        run: |
+          echo "$UNITY_LICENSE" | base64 --decode > UnityLicense.ulf
+          /Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity \
+            -batchmode -nographics -logFile \
+            -manualLicenseFile UnityLicense.ulf || true
+
+      # 🧩 用 Unity 匯出 iOS 專案
       - name: Build iOS Project
-        uses: webbertakken/unity-builder@v2
-        with:
-          targetPlatform: iOS
-          unityVersion: ${{ env.UNITY_VERSION }}
-          projectPath: ${{ env.PROJECT_PATH }}
-          buildName: ${{ env.APP_NAME }}
-          version: ${{ env.APP_VERSION }}
-          allowDirtyBuild: true
+        run: |
+          /Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity \
+            -quit -batchmode -nographics \
+            -projectPath "$PROJECT_PATH" \
+            -buildTarget iOS \
+            -executeMethod BuildScript.BuildiOS \
+            -logFile build.log || true
 
-      - name: Upload Xcode Project
+      # 🧩 上傳輸出（可下載 Xcode 專案）
+      - name: Upload iOS Build
         uses: actions/upload-artifact@v4
         with:
-          name: iOS-Build
+          name: iOS-Project
           path: build/iOS
