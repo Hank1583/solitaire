@@ -80,7 +80,7 @@ jobs:
 
       # 🧩 6️⃣ 將 IPA 儲存成 Artifact (備份)
       - name: Upload Artifact (IPA)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: iOS-IPA
           path: ${{ env.BUILD_PATH }}/output/*.ipa
