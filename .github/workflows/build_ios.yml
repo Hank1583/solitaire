@@ -1,5 +1,4 @@
-name: Build & Upload iOS (Unity Offline)
-
+name: Build iOS
 on:
   workflow_dispatch:
 
