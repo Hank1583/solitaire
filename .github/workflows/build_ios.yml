@@ -1,11 +1,11 @@
-name: Build iOS Unity (GameCI)
+name: Build iOS Unity (Ubuntu Builder)
 
 on:
   workflow_dispatch:
 
 jobs:
   build-ios:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     env:
       UNITY_VERSION: 2022.3.62f2
@@ -16,19 +16,10 @@ jobs:
       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
 
     steps:
-      # 🧩 Step 1. 取出原始碼
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 🧩 Step 2. 啟用 Unity 授權
-      - name: Activate Unity License
-        uses: game-ci/unity-activate@v2
-        with:
-          unityVersion: ${{ env.UNITY_VERSION }}
-          license: ${{ env.UNITY_LICENSE }}
-
-      # 🧩 Step 3. Build iOS 專案
-      - name: Build iOS project
+      - name: Build iOS Xcode project
         uses: game-ci/unity-builder@v4
         with:
           unityVersion: ${{ env.UNITY_VERSION }}
@@ -37,14 +28,10 @@ jobs:
           buildPath: ${{ env.BUILD_PATH }}
           projectPath: ${{ env.PROJECT_PATH }}
           allowDirtyBuild: true
+          unityLicense: ${{ secrets.UNITY_LICENSE }}
 
-      # 🧩 Step 4. 上傳打包結果
-      - name: Upload iOS Xcode project
+      - name: Upload Xcode project
         uses: actions/upload-artifact@v4
         with:
           name: iOS-Project
           path: build/iOS
-
-      # 🧩 Step 5. 釋放授權
-      - name: Return Unity license
-        uses: game-ci/unity-return-license@v2
