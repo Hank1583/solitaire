@@ -1,4 +1,4 @@
-name: Build iOS Unity (GameCI Stable)
+name: Build iOS Unity (GameCI)
 
 on:
   workflow_dispatch:
@@ -12,45 +12,46 @@ jobs:
       TARGET_PLATFORM: iOS
       PROJECT_PATH: .
       BUILD_PATH: build/iOS
-      BUILD_NAME: "VsSolitaire"
-      LICENSE: ${{ secrets.UNITY_LICENSE }}
+      BUILD_NAME: VsSolitaire
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
 
     steps:
       # 🧩 Step 1. Checkout 專案
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 🧩 Step 2. 快取加速（Unity Library/Package）
+      # 🧩 Step 2. 快取 Unity
       - name: Cache Unity
-        uses: game-ci/unity-actions/cache@v3
+        uses: game-ci/unity-cache@v3
         with:
           unityVersion: ${{ env.UNITY_VERSION }}
           targetPlatform: ${{ env.TARGET_PLATFORM }}
 
       # 🧩 Step 3. 啟用 Unity 授權
       - name: Activate Unity License
-        uses: game-ci/unity-actions/activate@v3
+        uses: game-ci/unity-activate@v3
         with:
           unityVersion: ${{ env.UNITY_VERSION }}
-          license: ${{ env.LICENSE }}
+          license: ${{ env.UNITY_LICENSE }}
 
-      # 🧩 Step 4. 打包 iOS 專案
-      - name: Build iOS
-        uses: game-ci/unity-actions/build@v3
+      # 🧩 Step 4. 打包 iOS
+      - name: Build iOS project
+        uses: game-ci/unity-builder@v4
         with:
           unityVersion: ${{ env.UNITY_VERSION }}
           targetPlatform: ${{ env.TARGET_PLATFORM }}
           buildName: ${{ env.BUILD_NAME }}
           buildPath: ${{ env.BUILD_PATH }}
           projectPath: ${{ env.PROJECT_PATH }}
+          allowDirtyBuild: true
 
-      # 🧩 Step 5. 上傳輸出結果（Xcode 專案）
-      - name: Upload iOS Xcode project
+      # 🧩 Step 5. 上傳 iOS Xcode 專案
+      - name: Upload iOS build artifact
         uses: actions/upload-artifact@v4
         with:
           name: iOS-Project
           path: build/iOS
 
-      # 🧩 Step 6. 釋放 Unity 授權
+      # 🧩 Step 6. 釋放授權
       - name: Return Unity license
-        uses: game-ci/unity-actions/return-license@v3
+        uses: game-ci/unity-return-license@v2
