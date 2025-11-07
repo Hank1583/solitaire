@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5b70d2f77a3ed9428c800352911c9c3, type: 3}
+  m_Name: WindowsSettings
+  m_EditorClassIdentifier: 
+  CenterPref: {fileID: 1000011176857874, guid: f1b6c175f583c8f4a9f0bd05a44501b4, type: 3}
+  StatsPref: {fileID: 1000013314254046, guid: 37a866a7fcb85344b9a4cc6f62e46f75, type: 3}
+  SettingsPref: {fileID: 1000013710827994, guid: 5ba73d0594e35d841b814a739f7e4f7e,
+    type: 3}
+  CardBackPref: {fileID: 1000012830442334, guid: fbdd48fd688db73489d60762f1cf715f,
+    type: 3}
+  CardFacePref: {fileID: 3114331130774818346, guid: e323e60fc65254f228f583d2b9c28d6c,
+    type: 3}
+  PlayBackgroundPref: {fileID: 1000010751819712, guid: 85792a32445fae643b7135f65f0bce1b,
+    type: 3}
+  ManualPref: {fileID: 1000013837466728, guid: 0a1d29de288a4e94e870ab58281727fd, type: 3}
+  RulePref: {fileID: 1000010576747902, guid: 8f1468713d2d8cd42ab81763000d721a, type: 3}
+  ControlPref: {fileID: 1000013447237054, guid: 9dd3eb11dfdcf164b9cd4731d7c805a8,
+    type: 3}
+  ScoringPref: {fileID: 1000010952533366, guid: 9125a7addaf5a524d98a4c22785682ca,
+    type: 3}
+  DailyPref: {fileID: 1000010813621780, guid: 4eeb7a67aa8d8224cba8e24cf16ef34b, type: 3}
+  TipsPref: {fileID: 1000010818047366, guid: 8ebaef09cf9452849b07889119734356, type: 3}
+  ResultPref: {fileID: 1000011584515094, guid: 5af9953daea261340b0cc5c6d8dbbf6a, type: 3}
+  ScrollPref: {fileID: 1000011721834746, guid: df209894ba8c2b94aa1c6b046bbd91cb, type: 3}
+  DialogPref: {fileID: 1000010711172832, guid: 0624a4d8bf18aae419fdc5eaf5d1324d, type: 3}
+  InputPref: {fileID: 1000010735069514, guid: f25ceb175412e2f41b44fa20d64f2b59, type: 3}
+  CollectionPref: {fileID: 1000013480698240, guid: 18d1c177c121ab846a499fce533b582b,
+    type: 3}
+  EarnMedalPref: {fileID: 1000010435017992, guid: 6d86478ae507ca34c9ac11c1e8612814,
+    type: 3}
+  MenuPref: {fileID: 1000010763538408, guid: ba99340add32b294282ae1bf8974ebf6, type: 3}
+  CalendarPref: {fileID: 1000011471653164, guid: 2c71e3114320dd44c91dbaf1f1dd89cd,
+    type: 3}
+  WinPref: {fileID: 1000010926966926, guid: c51b13a4b90510440a3c8d9c867b92a9, type: 3}

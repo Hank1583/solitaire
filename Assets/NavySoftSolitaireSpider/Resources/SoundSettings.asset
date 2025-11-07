@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cdee19d833935a4e80e7f1c5d66103c, type: 3}
+  m_Name: SoundSettings
+  m_EditorClassIdentifier: 
+  shift:
+  - {fileID: 8300000, guid: cd7e30a2187eb8f4aae36915e8d73283, type: 3}
+  - {fileID: 8300000, guid: aed8a5571dec6fb4996ae304dcd71409, type: 3}
+  - {fileID: 8300000, guid: 82bc05a872697ad489b1b2d9c92a8477, type: 3}
+  - {fileID: 8300000, guid: 396c39a8bfbf98746ad1c70222f6b800, type: 3}
+  foley:
+  - {fileID: 8300000, guid: 271b5740b5329c940beda0ae3baf38cf, type: 3}
+  - {fileID: 8300000, guid: 7984fa1189d09ea4593fba1f33a0e6e8, type: 3}
+  - {fileID: 8300000, guid: 521b76bad55deab4ca9e6a7d90ebcb6f, type: 3}
+  - {fileID: 8300000, guid: 5967148d8ce93f04ea983f01d96daf28, type: 3}
+  creack:
+  - {fileID: 8300000, guid: e4413af42f67d7647a6ee2fd8166aa6a, type: 3}
+  up:
+  - {fileID: 8300000, guid: f1310b78bc7dbc148bec1cc570e29b1c, type: 3}
+  down:
+  - {fileID: 8300000, guid: 7476a768e0133b143b286541d1dba31a, type: 3}
+  error:
+  - {fileID: 8300000, guid: 3ec20344adfda094588a0c0aaf209c82, type: 3}
+  win:
+  - {fileID: 8300000, guid: 8611754fda10449eca37a93bfaae3084, type: 3}
+  claps:
+  - {fileID: 8300000, guid: 188b9377d6ac71442a09a64da1890174, type: 3}
+  buttonClick: {fileID: 8300000, guid: 7de3fdf1a552b4425b6d755cdf015eb3, type: 3}
+  destroyTwoCard: {fileID: 8300000, guid: b5bd15e0b733e49a8a3bfdc8d44b795e, type: 3}
+  destroyKCard: {fileID: 8300000, guid: 81855d776175842d4ae51baea7a60151, type: 3}
+  missCard: {fileID: 8300000, guid: 91cc19d59ff9b4120a0f9ae84bfa5766, type: 3}
+  clearRowCard: {fileID: 8300000, guid: 9039aa38924234e138b5d7a839e4834f, type: 3}
+  startNew: {fileID: 8300000, guid: c2b6f268653ed4a41b575f18f38b5c06, type: 3}
+  touchCard: {fileID: 8300000, guid: c0de9438127144a5daee48f57a57fc68, type: 3}
+  undoCard: {fileID: 8300000, guid: 23f9840994bdd42fa803bf80acc71e43, type: 3}
+  drawCard: {fileID: 8300000, guid: 08fe112408c8b49b7b94b3e0e0f13d75, type: 3}
+  hintCard: {fileID: 8300000, guid: 8b1f8c722f45f486794c289962ba3361, type: 3}
