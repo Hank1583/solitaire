@@ -37,7 +37,6 @@ jobs:
           version: ${{ env.APP_VERSION }}
           bundleIdentifier: ${{ env.BUNDLE_ID }}
           allowDirtyBuild: true
-          skipActivation: true               # 👈 關鍵：合法跳過 Personal 授權驗證
           buildMethod: ""
           unityLicense: ${{ secrets.UNITY_LICENSE }}
 
