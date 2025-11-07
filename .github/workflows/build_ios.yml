@@ -1,4 +1,4 @@
-name: Build iOS Unity (Manual Activation)
+name: Build iOS Unity (GameCI Stable)
 
 on:
   workflow_dispatch:
@@ -6,47 +6,51 @@ on:
 jobs:
   build-ios:
     runs-on: macos-latest
+
     env:
       UNITY_VERSION: 2022.3.62f2
-      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+      TARGET_PLATFORM: iOS
       PROJECT_PATH: .
       BUILD_PATH: build/iOS
-      APP_NAME: "V's 接龍"
-      BUNDLE_ID: com.highlight.solitaire
-      APP_VERSION: 20251107
+      BUILD_NAME: "VsSolitaire"
+      LICENSE: ${{ secrets.UNITY_LICENSE }}
 
     steps:
+      # 🧩 Step 1. Checkout 專案
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 🧩 安裝 Unity Hub CLI + 指定版本
-      - name: Install Unity Editor
-        run: |
-          brew install --cask unity-hub
-          mkdir -p ~/Unity
-          unity-hub install --version $UNITY_VERSION --modules ios
+      # 🧩 Step 2. 快取加速（Unity Library/Package）
+      - name: Cache Unity
+        uses: game-ci/unity-actions/cache@v3
+        with:
+          unityVersion: ${{ env.UNITY_VERSION }}
+          targetPlatform: ${{ env.TARGET_PLATFORM }}
 
-      # 🧩 匯出 License（啟用 Personal License）
+      # 🧩 Step 3. 啟用 Unity 授權
       - name: Activate Unity License
-        run: |
-          echo "$UNITY_LICENSE" | base64 --decode > UnityLicense.ulf
-          /Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity \
-            -batchmode -nographics -logFile \
-            -manualLicenseFile UnityLicense.ulf || true
+        uses: game-ci/unity-actions/activate@v3
+        with:
+          unityVersion: ${{ env.UNITY_VERSION }}
+          license: ${{ env.LICENSE }}
 
-      # 🧩 用 Unity 匯出 iOS 專案
-      - name: Build iOS Project
-        run: |
-          /Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity \
-            -quit -batchmode -nographics \
-            -projectPath "$PROJECT_PATH" \
-            -buildTarget iOS \
-            -executeMethod BuildScript.BuildiOS \
-            -logFile build.log || true
+      # 🧩 Step 4. 打包 iOS 專案
+      - name: Build iOS
+        uses: game-ci/unity-actions/build@v3
+        with:
+          unityVersion: ${{ env.UNITY_VERSION }}
+          targetPlatform: ${{ env.TARGET_PLATFORM }}
+          buildName: ${{ env.BUILD_NAME }}
+          buildPath: ${{ env.BUILD_PATH }}
+          projectPath: ${{ env.PROJECT_PATH }}
 
-      # 🧩 上傳輸出（可下載 Xcode 專案）
-      - name: Upload iOS Build
+      # 🧩 Step 5. 上傳輸出結果（Xcode 專案）
+      - name: Upload iOS Xcode project
         uses: actions/upload-artifact@v4
         with:
           name: iOS-Project
           path: build/iOS
+
+      # 🧩 Step 6. 釋放 Unity 授權
+      - name: Return Unity license
+        uses: game-ci/unity-actions/return-license@v3
