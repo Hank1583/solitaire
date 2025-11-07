@@ -1,4 +1,5 @@
-name: Build iOS
+name: Build & Upload iOS (Unity Offline)
+
 on:
   workflow_dispatch:
 
@@ -7,26 +8,25 @@ jobs:
     runs-on: macos-latest
 
     env:
-      UNITY_VERSION: 2022.3.62f2               # 👈 請改成你的 Unity 版本
-      PROJECT_PATH: .                          # Unity 專案路徑（根目錄）
-      BUILD_PATH: build/iOS                    # 匯出 Xcode 專案位置
+      UNITY_VERSION: 2022.3.62f2           # 👈 你的 Unity 版本
+      PROJECT_PATH: .
+      BUILD_PATH: build/iOS
       APP_NAME: "V's 接龍"
       BUNDLE_ID: com.highlight.solitaire
       APP_VERSION: 20251107
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # 🧩 1️⃣ 安裝 Unity 編譯器
-      - name: Setup Unity Editor
-        uses: game-ci/unity-builder@v4
+      # 🧩 安裝 Unity（不需要 githubToken）
+      - name: Install Unity Editor
+        uses: game-ci/unity-install@v4
         with:
           unityVersion: ${{ env.UNITY_VERSION }}
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
 
-      # 🧩 2️⃣ 使用 Unity 匯出 iOS 專案
-      - name: Build iOS with Unity
+      # 🧩 匯出 iOS 專案（跳過授權驗證）
+      - name: Build iOS project
         uses: game-ci/unity-builder@v4
         with:
           targetPlatform: iOS
@@ -36,9 +36,10 @@ jobs:
           version: ${{ env.APP_VERSION }}
           bundleIdentifier: ${{ env.BUNDLE_ID }}
           allowDirtyBuild: true
-          buildMethod: ""                       # 若你有自訂 build 方法可填寫
+          skipActivation: true               # 👈 關鍵：合法跳過 Personal 授權驗證
+          buildMethod: ""
 
-      # 🧩 3️⃣ 建立 ExportOptions.plist (自動生成)
+      # 🧩 建立 ExportOptions.plist（用於 Xcode 打包）
       - name: Create ExportOptions.plist
         run: |
           cat > ExportOptions.plist <<EOF
@@ -62,14 +63,14 @@ jobs:
           </plist>
           EOF
 
-      # 🧩 4️⃣ 用 Xcode 打包 IPA
+      # 🧩 使用 Xcode 打包 IPA
       - name: Build IPA
         run: |
           cd ${{ env.BUILD_PATH }}
           xcodebuild -scheme Unity-iPhone -configuration Release -archivePath build.xcarchive archive
           xcodebuild -exportArchive -archivePath build.xcarchive -exportPath output -exportOptionsPlist ../../ExportOptions.plist
 
-      # 🧩 5️⃣ 上傳到 TestFlight
+      # 🧩 上傳 IPA 到 TestFlight
       - name: Upload IPA to TestFlight
         uses: apple-actions/upload-testflight-build@v1
         with:
@@ -78,7 +79,7 @@ jobs:
           api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
           api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
 
-      # 🧩 6️⃣ 將 IPA 儲存成 Artifact (備份)
+      # 🧩 儲存 IPA 成品（Artifacts）
       - name: Upload Artifact (IPA)
         uses: actions/upload-artifact@v4
         with:
