@@ -30,6 +30,7 @@ jobs:
         uses: game-ci/unity-builder@v4
         with:
           targetPlatform: iOS
+          unityVersion: ${{ env.UNITY_VERSION }}
           projectPath: ${{ env.PROJECT_PATH }}
           outputDirectory: ${{ env.BUILD_PATH }}
           buildName: ${{ env.APP_NAME }}
@@ -38,6 +39,7 @@ jobs:
           allowDirtyBuild: true
           skipActivation: true               # 👈 關鍵：合法跳過 Personal 授權驗證
           buildMethod: ""
+          unityLicense: ${{ secrets.UNITY_LICENSE }}
 
       # 🧩 建立 ExportOptions.plist（用於 Xcode 打包）
       - name: Create ExportOptions.plist
