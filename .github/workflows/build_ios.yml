@@ -16,25 +16,18 @@ jobs:
       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
 
     steps:
-      # 🧩 Step 1. Checkout 專案
+      # 🧩 Step 1. 取出原始碼
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 🧩 Step 2. 快取 Unity
-      - name: Cache Unity
-        uses: game-ci/unity-cache@v3
-        with:
-          unityVersion: ${{ env.UNITY_VERSION }}
-          targetPlatform: ${{ env.TARGET_PLATFORM }}
-
-      # 🧩 Step 3. 啟用 Unity 授權
+      # 🧩 Step 2. 啟用 Unity 授權
       - name: Activate Unity License
-        uses: game-ci/unity-activate@v3
+        uses: game-ci/unity-activate@v2
         with:
           unityVersion: ${{ env.UNITY_VERSION }}
           license: ${{ env.UNITY_LICENSE }}
 
-      # 🧩 Step 4. 打包 iOS
+      # 🧩 Step 3. Build iOS 專案
       - name: Build iOS project
         uses: game-ci/unity-builder@v4
         with:
@@ -45,13 +38,13 @@ jobs:
           projectPath: ${{ env.PROJECT_PATH }}
           allowDirtyBuild: true
 
-      # 🧩 Step 5. 上傳 iOS Xcode 專案
-      - name: Upload iOS build artifact
+      # 🧩 Step 4. 上傳打包結果
+      - name: Upload iOS Xcode project
         uses: actions/upload-artifact@v4
         with:
           name: iOS-Project
           path: build/iOS
 
-      # 🧩 Step 6. 釋放授權
+      # 🧩 Step 5. 釋放授權
       - name: Return Unity license
         uses: game-ci/unity-return-license@v2
