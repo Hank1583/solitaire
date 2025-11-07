@@ -1,13 +1,13 @@
-name: iOS Build
+name: Build & Upload iOS (Unity Offline)
+
 on:
   workflow_dispatch:
 
 jobs:
   build-ios:
     runs-on: macos-latest
-
     env:
-      UNITY_VERSION: 2022.3.62f2           # 👈 你的 Unity 版本
+      UNITY_VERSION: 2022.3.62f2
       PROJECT_PATH: .
       BUILD_PATH: build/iOS
       APP_NAME: "V's 接龍"
@@ -15,11 +15,9 @@ jobs:
       APP_VERSION: 20251107
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # 🧩 匯出 iOS 專案（跳過授權驗證）
-      - name: Build iOS project
+      - name: Build iOS Project
         uses: game-ci/unity-builder@v4
         with:
           targetPlatform: iOS
@@ -32,51 +30,4 @@ jobs:
           allowDirtyBuild: true
           buildMethod: ""
           unityLicense: ${{ secrets.UNITY_LICENSE }}
-          unityLicenseFile: true
-
-      # 🧩 建立 ExportOptions.plist（用於 Xcode 打包）
-      - name: Create ExportOptions.plist
-        run: |
-          cat > ExportOptions.plist <<EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>method</key>
-            <string>app-store</string>
-            <key>uploadBitcode</key>
-            <false/>
-            <key>compileBitcode</key>
-            <false/>
-            <key>signingStyle</key>
-            <string>automatic</string>
-            <key>teamID</key>
-            <string>${{ secrets.APPSTORE_TEAM_ID }}</string>
-            <key>bundleIdentifier</key>
-            <string>${{ env.BUNDLE_ID }}</string>
-          </dict>
-          </plist>
-          EOF
-
-      # 🧩 使用 Xcode 打包 IPA
-      - name: Build IPA
-        run: |
-          cd ${{ env.BUILD_PATH }}
-          xcodebuild -scheme Unity-iPhone -configuration Release -archivePath build.xcarchive archive
-          xcodebuild -exportArchive -archivePath build.xcarchive -exportPath output -exportOptionsPlist ../../ExportOptions.plist
-
-      # 🧩 上傳 IPA 到 TestFlight
-      - name: Upload IPA to TestFlight
-        uses: apple-actions/upload-testflight-build@v1
-        with:
-          app-path: ${{ env.BUILD_PATH }}/output/*.ipa
-          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
-          api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
-          api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
-
-      # 🧩 儲存 IPA 成品（Artifacts）
-      - name: Upload Artifact (IPA)
-        uses: actions/upload-artifact@v4
-        with:
-          name: iOS-IPA
-          path: ${{ env.BUILD_PATH }}/output/*.ipa
+          unityLicenseFile: true     # 👈 告訴 GameCI：這是 Base64 編碼的授權檔案
