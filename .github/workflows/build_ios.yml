@@ -1,11 +1,26 @@
-name: Build & Upload iOS (Unity Offline)
+name: Build & Upload iOS (Unity Personal)
 
 on:
   workflow_dispatch:
 
 jobs:
+  # 🧩 Step 1: 在 Ubuntu 啟用 License
+  activate-license:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Activate Unity Personal License
+        uses: webbertakken/unity-activate@v1
+        with:
+          unityVersion: 2022.3.62f2
+          personalLicense: ${{ secrets.UNITY_LICENSE }}
+    outputs:
+      UNITY_LICENSE: ${{ steps.activate.outputs.unityLicense }}
+
+  # 🧩 Step 2: macOS 建構 iOS 專案
   build-ios:
     runs-on: macos-latest
+    needs: activate-license
     env:
       UNITY_VERSION: 2022.3.62f2
       PROJECT_PATH: .
@@ -17,14 +32,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 🧩 安裝 Unity 並啟用 Personal License
-      - name: Activate Unity License
-        uses: webbertakken/unity-activate@v1
-        with:
-          unityVersion: ${{ env.UNITY_VERSION }}
-          personalLicense: ${{ secrets.UNITY_LICENSE }}
-
-      # 🧩 使用 Unity 建構 iOS 專案
       - name: Build iOS Project
         uses: webbertakken/unity-builder@v2
         with:
@@ -33,11 +40,9 @@ jobs:
           projectPath: ${{ env.PROJECT_PATH }}
           buildName: ${{ env.APP_NAME }}
           version: ${{ env.APP_VERSION }}
-          buildMethod: ""
           allowDirtyBuild: true
 
-      # 🧩 儲存成品 (Xcode 專案資料夾)
-      - name: Upload Build Output
+      - name: Upload Xcode Project
         uses: actions/upload-artifact@v4
         with:
           name: iOS-Build
