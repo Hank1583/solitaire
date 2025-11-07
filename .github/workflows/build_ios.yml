@@ -1,5 +1,4 @@
-name: Build & Upload iOS (Unity Offline)
-
+name: iOS Build
 on:
   workflow_dispatch:
 
@@ -33,6 +32,7 @@ jobs:
           allowDirtyBuild: true
           buildMethod: ""
           unityLicense: ${{ secrets.UNITY_LICENSE }}
+          unityLicenseFile: true
 
       # 🧩 建立 ExportOptions.plist（用於 Xcode 打包）
       - name: Create ExportOptions.plist
