@@ -20,7 +20,7 @@ jobs:
 
       # 🧩 1️⃣ 安裝 Unity 編譯器
       - name: Setup Unity Editor
-        uses: game-ci/unity-setup@v4
+        uses: game-ci/unity-builder@v4
         with:
           unityVersion: ${{ env.UNITY_VERSION }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
