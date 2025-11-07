@@ -19,12 +19,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 🧩 安裝 Unity（不需要 githubToken）
-      - name: Install Unity Editor
-        uses: game-ci/unity-builder@v4
-        with:
-          unityVersion: ${{ env.UNITY_VERSION }}
-
       # 🧩 匯出 iOS 專案（跳過授權驗證）
       - name: Build iOS project
         uses: game-ci/unity-builder@v4
