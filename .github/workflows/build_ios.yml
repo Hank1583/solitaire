@@ -21,7 +21,7 @@ jobs:
 
       # 🧩 安裝 Unity（不需要 githubToken）
       - name: Install Unity Editor
-        uses: game-ci/unity-install@v4
+        uses: game-ci/unity-builder@v4
         with:
           unityVersion: ${{ env.UNITY_VERSION }}
 
