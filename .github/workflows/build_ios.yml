@@ -17,17 +17,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 🧩 安裝 Unity 並啟用 Personal License
+      - name: Activate Unity License
+        uses: webbertakken/unity-activate@v1
+        with:
+          unityVersion: ${{ env.UNITY_VERSION }}
+          personalLicense: ${{ secrets.UNITY_LICENSE }}
+
+      # 🧩 使用 Unity 建構 iOS 專案
       - name: Build iOS Project
-        uses: game-ci/unity-builder@v4
+        uses: webbertakken/unity-builder@v2
         with:
           targetPlatform: iOS
           unityVersion: ${{ env.UNITY_VERSION }}
           projectPath: ${{ env.PROJECT_PATH }}
-          outputDirectory: ${{ env.BUILD_PATH }}
           buildName: ${{ env.APP_NAME }}
           version: ${{ env.APP_VERSION }}
-          bundleIdentifier: ${{ env.BUNDLE_ID }}
-          allowDirtyBuild: true
           buildMethod: ""
-          unityLicense: ${{ secrets.UNITY_LICENSE }}
-          unityLicenseFile: true     # 👈 告訴 GameCI：這是 Base64 編碼的授權檔案
+          allowDirtyBuild: true
+
+      # 🧩 儲存成品 (Xcode 專案資料夾)
+      - name: Upload Build Output
+        uses: actions/upload-artifact@v4
+        with:
+          name: iOS-Build
+          path: build/iOS
