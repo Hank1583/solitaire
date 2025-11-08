@@ -1,4 +1,4 @@
-name: Build iOS Unity (Ubuntu Builder)
+name: Build iOS Unity (GameCI v4 Personal License)
 
 on:
   workflow_dispatch:
@@ -7,30 +7,24 @@ jobs:
   build-ios:
     runs-on: ubuntu-latest
 
-    env:
-      UNITY_VERSION: 2022.3.62f2
-      TARGET_PLATFORM: iOS
-      PROJECT_PATH: .
-      BUILD_PATH: build/iOS
-      BUILD_NAME: VsSolitaire
-      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build iOS Xcode project
+      - name: Build iOS Xcode Project
         uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          unityVersion: ${{ env.UNITY_VERSION }}
-          targetPlatform: ${{ env.TARGET_PLATFORM }}
-          buildName: ${{ env.BUILD_NAME }}
-          buildPath: ${{ env.BUILD_PATH }}
-          projectPath: ${{ env.PROJECT_PATH }}
+          unityVersion: 2022.3.62f2
+          targetPlatform: iOS
+          buildName: VsSolitaire
+          buildsPath: build
           allowDirtyBuild: true
-          unityLicense: ${{ secrets.UNITY_LICENSE }}
 
-      - name: Upload Xcode project
+      - name: Upload iOS Xcode Project
         uses: actions/upload-artifact@v4
         with:
           name: iOS-Project
