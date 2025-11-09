@@ -1,29 +1,48 @@
-name: Build iOS Unity (GameCI v4 Personal License)
+name: Build iOS (Unity 2022.3.62f2)
 
 on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   build-ios:
+    name: Build for iOS
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          lfs: true
 
-      - name: Build iOS Xcode Project
+      - name: Cache Unity Library folder
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-ios-${{ hashFiles('Assets/**','Packages/**','ProjectSettings/**') }}
+          restore-keys: |
+            Library-ios-
+
+      - name: Setup Unity build
         uses: game-ci/unity-builder@v4
         env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}       # 如果使用 license 檔案
         with:
-          unityVersion: 2022.3.62f2
           targetPlatform: iOS
-          buildName: VsSolitaire
+          unityVersion: 2022.3.62f2
+          projectPath: .
+          buildName: MyGame_iOS
           buildsPath: build
-          allowDirtyBuild: true
-
-      - name: Upload iOS Xcode Project
+          # 如有需要可傳 customParameters 或 buildMethod
+          
+      - name: Upload iOS Xcode project artifact
         uses: actions/upload-artifact@v4
         with:
-          name: iOS-Project
+          name: build-iOS
           path: build/iOS
