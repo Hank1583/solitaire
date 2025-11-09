@@ -33,6 +33,7 @@ jobs:
         with:
           targetPlatform: iOS
           unityVersion: 2022.3.62f2
+          allowDirtyBuild: true
           projectPath: .
           buildsPath: build
           buildName: iOS
