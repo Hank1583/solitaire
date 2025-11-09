@@ -1,4 +1,4 @@
-name: Build iOS IPA
+name: Build iOS and Upload to TestFlight
 
 on:
   workflow_dispatch:
@@ -8,12 +8,12 @@ on:
 
 jobs:
   build-ios:
-    name: Unity → Xcode → Signed IPA
+    name: Unity → Xcode → Signed IPA → TestFlight
     runs-on: macos-latest
 
     steps:
       # ===============================
-      # 1️⃣  Checkout 專案
+      # 1️⃣ Checkout 專案
       # ===============================
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,7 +21,7 @@ jobs:
           lfs: true
 
       # ===============================
-      # 2️⃣ Cache Unity Library (可加速)
+      # 2️⃣ Cache Unity Library (加快建置)
       # ===============================
       - name: Cache Library folder
         uses: actions/cache@v3
@@ -32,7 +32,7 @@ jobs:
             Library-ios-
 
       # ===============================
-      # 3️⃣ Build Unity 專案 → 輸出 Xcode 專案
+      # 3️⃣ Unity Build → 輸出 Xcode 專案
       # ===============================
       - name: Build Unity iOS project
         uses: game-ci/unity-builder@v4
@@ -64,25 +64,26 @@ jobs:
           security default-keychain -s ~/Library/Keychains/build.keychain
           security unlock-keychain -p "password" ~/Library/Keychains/build.keychain
           security set-key-partition-list -S apple-tool:,apple: -s -k "password" ~/Library/Keychains/build.keychain
+          security find-identity -p codesigning -v
         env:
           APPLE_CERT_P12: ${{ secrets.APPLE_CERT_P12 }}
           APPLE_CERT_PASSWORD: ${{ secrets.APPLE_CERT_PASSWORD }}
           APPLE_PROVISION_PROFILE: ${{ secrets.APPLE_PROVISION_PROFILE }}
 
       # ===============================
-      # 5️⃣ Build + Sign Xcode 專案 → IPA
+      # 5️⃣ Xcode Build & Sign IPA
       # ===============================
       - name: Build and sign IPA
         env:
           IOS_PROJECT_PATH: build/iOS
-          APPLE_TEAM_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_BUNDLE_ID: ${{ secrets.APPLE_BUNDLE_ID }}
         run: |
           cd $IOS_PROJECT_PATH
           PROJECT_FILE=$(find . -name "*.xcodeproj" | head -n 1)
           echo "📘 Found Xcode project: $PROJECT_FILE"
 
-          # Step 1: 產生 xcarchive
+          # Step 1: 建立 .xcarchive
           xcodebuild -project "$PROJECT_FILE" \
                      -scheme "Unity-iPhone" \
                      -configuration Release \
@@ -102,11 +103,11 @@ jobs:
                      <plist version="1.0">
                      <dict>
                        <key>method</key>
-                       <string>ad-hoc</string>
-                       <key>signingStyle</key>
-                       <string>manual</string>
+                       <string>app-store</string>
                        <key>teamID</key>
                        <string>'"$APPLE_TEAM_ID"'</string>
+                       <key>signingStyle</key>
+                       <string>manual</string>
                        <key>provisioningProfiles</key>
                        <dict>
                          <key>'"$APPLE_BUNDLE_ID"'</key>
@@ -116,9 +117,20 @@ jobs:
                      </plist>')
 
       # ===============================
-      # 6️⃣ 上傳 IPA Artifact
+      # 6️⃣ 上傳 IPA 至 TestFlight
       # ===============================
-      - name: Upload IPA
+      - name: Upload to TestFlight
+        uses: apple-actions/upload-testflight-build@v1
+        with:
+          app-path: build/iOS/ipa-output/*.ipa
+          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+
+      # ===============================
+      # 7️⃣ 上傳 IPA 到 GitHub Artifact (備份)
+      # ===============================
+      - name: Upload IPA to GitHub
         uses: actions/upload-artifact@v4
         with:
           name: Signed-IPA
