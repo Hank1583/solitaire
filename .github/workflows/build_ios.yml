@@ -1,7 +1,7 @@
 name: Build iOS IPA
 
 on:
-  workflow_dispatch: # 手動觸發，方便測試
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -45,7 +45,7 @@ jobs:
           path: build/iOS
 
   build-ipa:
-    name: Xcode → IPA
+    name: Xcode → Signed IPA
     runs-on: macos-latest
     needs: build-xcode
     steps:
@@ -60,21 +60,39 @@ jobs:
         with:
           xcode-version: '16.4.0'
 
-      - name: Build .ipa with xcodebuild
+      # 🧩 安裝 Apple 簽名憑證 (.p12 + .mobileprovision)
+      - name: Install Apple signing certificates
+        run: |
+          echo "${{ secrets.APPLE_CERT_P12 }}" | base64 --decode > cert.p12
+          echo "${{ secrets.APPLE_PROVISION_PROFILE }}" | base64 --decode > profile.mobileprovision
+
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+
+          security create-keychain -p "" build.keychain
+          security import cert.p12 -k ~/Library/Keychains/build.keychain -P "${{ secrets.APPLE_CERT_PASSWORD }}" -A
+          security list-keychains -s ~/Library/Keychains/build.keychain
+          security unlock-keychain -p "" ~/Library/Keychains/build.keychain
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" ~/Library/Keychains/build.keychain
+
+      # 🏗️ 建置與簽名 IPA
+      - name: Build and sign IPA
         env:
           IOS_PROJECT_PATH: build/iOS
           APP_NAME: MyUnityApp
         run: |
           cd $IOS_PROJECT_PATH
-          # 生成 xcodeproj 的路徑
           PROJECT_FILE=$(find . -name "*.xcodeproj" | head -n 1)
           echo "Found Xcode project: $PROJECT_FILE"
 
-          # 使用自動簽名方式（會生成未簽名 ipa，可自行導入 Xcode 簽名）
           xcodebuild -project "$PROJECT_FILE" \
                      -scheme "Unity-iPhone" \
                      -configuration Release \
                      -archivePath ./build.xcarchive \
+                     DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" \
+                     PRODUCT_BUNDLE_IDENTIFIER="${{ secrets.APPLE_BUNDLE_ID }}" \
+                     CODE_SIGN_STYLE=Manual \
+                     CODE_SIGN_IDENTITY="Apple Distribution" \
                      archive
 
           xcodebuild -exportArchive \
@@ -86,17 +104,20 @@ jobs:
                      <dict>
                        <key>method</key>
                        <string>ad-hoc</string>
-                       <key>compileBitcode</key>
-                       <false/>
                        <key>signingStyle</key>
                        <string>manual</string>
-                       <key>stripSwiftSymbols</key>
-                       <true/>
+                       <key>teamID</key>
+                       <string>${{ secrets.APPLE_TEAM_ID }}</string>
+                       <key>provisioningProfiles</key>
+                       <dict>
+                         <key>${{ secrets.APPLE_BUNDLE_ID }}</key>
+                         <string>${{ secrets.APPLE_BUNDLE_ID }}</string>
+                       </dict>
                      </dict>
                      </plist>')
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: ipa-file
+          name: Signed-IPA
           path: build/iOS/ipa-output/*.ipa
